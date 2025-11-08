@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Models and Data
+*.h5
+*.pkl
+*.pickle
+*.joblib
+extracted_df.pkl
+Model1.h5
+Model2.h5
+Model3.h5
+
+# Datasets
+UrbanSound8K/
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.m4a
+
+# Uploads folder
+uploads/
+temp/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+
+# Flask
+instance/
+.webassets-cache
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# TensorFlow
+*.ckpt
+*.index
+*.meta
+checkpoint
+
+# Kaggle
+kaggle.json
+
+# OS
+Thumbs.db
+.DS_Store
+*.bak
+*.tmp
+
+# Documentation
+*.pdf
+*.doc
+*.docx
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar

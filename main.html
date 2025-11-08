@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Classification AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e4e4e7;
+        }
+        
+        .container {
+            background: rgba(30, 30, 46, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #a1a1aa;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        
+        .upload-area {
+            background: rgba(45, 45, 68, 0.6);
+            border: 2px dashed rgba(96, 165, 250, 0.3);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(96, 165, 250, 0.6);
+            background: rgba(45, 45, 68, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .upload-text {
+            color: #e4e4e7;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            color: #71717a;
+            font-size: 13px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-name {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #60a5fa;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .file-name.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(96, 165, 250, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(96, 165, 250, 0.2);
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+        
+        .result {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .success-icon {
+            font-size: 32px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+        
+        .result-file {
+            color: #71717a;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        
+        .prediction-card {
+            background: rgba(45, 45, 68, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .prediction-card:hover {
+            background: rgba(45, 45, 68, 0.8);
+            border-color: rgba(96, 165, 250, 0.3);
+            transform: translateX(4px);
+        }
+        
+        .model-name {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a78bfa;
+            margin-bottom: 12px;
+        }
+        
+        .prediction-class {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e4e4e7;
+            margin-bottom: 12px;
+        }
+        
+        .confidence-bar {
+            background: rgba(255, 255, 255, 0.05);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
+            border-radius: 4px;
+            transition: width 0.8s ease-out;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+        
+        .confidence-text {
+            font-size: 14px;
+            color: #a1a1aa;
+            font-weight: 500;
+        }
+        
+        .error {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            color: #fca5a5;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .error-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-text {
+            color: #71717a;
+            font-size: 13px;
+        }
+        
+        .supported-formats {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        
+        .format-badge {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Audio Classification AI</h1>
+            <p class="subtitle">Powered by Deep Learning Models</p>
+        </div>
+        
+        <div class="upload-area" onclick="document.getElementById('audioFile').click()">
+            <span class="upload-icon">🎧</span>
+            <div class="upload-text">Click to upload audio file</div>
+            <div class="upload-hint">or drag and drop</div>
+        </div>
+        
+        <input type="file" id="audioFile" accept=".wav,.mp3,.ogg,.flac,.m4a">
+        
+        <div class="file-name" id="fileName"></div>
+        
+        <button id="predictBtn" onclick="uploadAndPredict()" disabled>
+            Analyze Audio
+        </button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Analyzing your audio...</div>
+        </div>
+        
+        <div class="result" id="result"></div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="footer">
+            <div class="footer-text">Supported Audio Formats</div>
+            <div class="supported-formats">
+                <span class="format-badge">WAV</span>
+                <span class="format-badge">MP3</span>
+                <span class="format-badge">OGG</span>
+                <span class="format-badge">FLAC</span>
+                <span class="format-badge">M4A</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File input change handler
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileNameDiv = document.getElementById('fileName');
+            const predictBtn = document.getElementById('predictBtn');
+            
+            if (file) {
+                fileNameDiv.textContent = `📁 ${file.name}`;
+                fileNameDiv.classList.add('show');
+                predictBtn.disabled = false;
+            } else {
+                fileNameDiv.classList.remove('show');
+                predictBtn.disabled = true;
+            }
+            
+            // Clear previous results
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+        });
+        
+        async function uploadAndPredict() {
+            const fileInput = document.getElementById('audioFile');
+            const file = fileInput.files[0];
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            const loadingDiv = document.getElementById('loading');
+            const predictBtn = document.getElementById('predictBtn');
+            
+            if (!file) {
+                errorDiv.innerHTML = '<div class="error-icon">⚠️</div>Please select a file first!';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            // Show loading, hide results and errors
+            loadingDiv.classList.add('show');
+            resultDiv.classList.remove('show');
+            errorDiv.classList.remove('show');
+            predictBtn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('model', 'all');
+            
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                console.log('Response:', data);
+                
+                if (data.success && data.predictions) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'No predictions returned from server');
+                }
+            } catch (error) {
+                showError(`Connection Error: ${error.message}`);
+                console.error('Error:', error);
+            } finally {
+                loadingDiv.classList.remove('show');
+                predictBtn.disabled = false;
+            }
+        }
+        
+        function displayResults(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <div class="result-header">
+                    <span class="success-icon">✨</span>
+                    <div>
+                        <div class="result-title">Analysis Complete</div>
+                        <div class="result-file">${data.filename}</div>
+                    </div>
+                </div>
+            `;
+            
+            for (const [model, result] of Object.entries(data.predictions)) {
+                html += `
+                    <div class="prediction-card">
+                        <div class="model-name">${model} Model</div>
+                        <div class="prediction-class">${result.predicted_class}</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${result.confidence}%"></div>
+                        </div>
+                        <div class="confidence-text">${result.confidence}% Confidence</div>
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add('show');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<div class="error-icon">❌</div>${message}`;
+            errorDiv.classList.add('show');
+        }
+        
+        // Drag and drop support
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(96, 165, 250, 0.8)';
+            uploadArea.style.background = 'rgba(45, 45, 68, 0.9)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'rgba(96, 165, 250, 0.3)';
+            uploadArea.style.background = 'rgba(45, 45, 68, 0.6)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'rgba(96, 165, 250, 0.3)';
+            uploadArea.style.background = 'rgba(45, 45, 68, 0.6)';
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                document.getElementById('audioFile').files = e.dataTransfer.files;
+                const event = new Event('change');
+                document.getElementById('audioFile').dispatchEvent(event);
+            }
+        });
+    </script>
+</body>
+</html>
